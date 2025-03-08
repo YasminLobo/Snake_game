@@ -2,13 +2,16 @@ import pygame, sys, random
 from pygame.math import Vector2
 import time
 
-# Define cores com tema de terror
-NIGHT_GREEN = (0, 50, 0)  # Verde escuro para a grama
-BLOOD_RED = (139, 0, 0)  # Vermelho sangue
-DARK_GRAY = (80, 80, 80)  # Cinza escuro para obstáculos
-BACKGROUND_COLOR = (20, 20, 20)  # Preto para o fundo
-TEXT_COLOR = (220, 220, 220)  # Cinza claro para o texto
-WHITE = (200, 200, 200) # Cinza claro para alguns textos
+# Palea de cores utilizadas
+NIGHT_GREEN = (0, 50, 0)  
+BLOOD_RED = (139, 0, 0) 
+DARK_GRAY = (80, 80, 80)  
+BACKGROUND_COLOR = (20, 20, 20) 
+TEXT_COLOR = (220, 220, 220) 
+WHITE = (200, 200, 200) 
+
+cell_size = 40
+cell_number = 20
 
 class SNAKE:
     def __init__(self):
@@ -16,7 +19,7 @@ class SNAKE:
         self.direction = Vector2(0,0)
         self.new_block = False
 
-        # Carrega imagens padrões
+        # Imagens da cobrinha
         self.head_up = pygame.image.load('img/head_up.png').convert_alpha()
         self.head_down = pygame.image.load('img/head_down.png').convert_alpha()
         self.head_right = pygame.image.load('img/head_right.png').convert_alpha()
@@ -205,30 +208,30 @@ class MAIN:
 
     def draw_grass(self):
         for row in range(cell_number):
-            if row % 2 == 0: 
-                for col in range(cell_number):
-                    if col % 2 == 0:
-                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
-                        pygame.draw.rect(screen, NIGHT_GREEN, grass_rect)
-            else:
-                for col in range(cell_number):
-                    if col % 2 != 0:
-                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
-                        pygame.draw.rect(screen, NIGHT_GREEN, grass_rect)
+            for col in range(cell_number):
+                grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
+                if (row + col) % 2 == 0:
+                    pygame.draw.rect(screen, (30, 30, 30), grass_rect)  # Cinza escuro
+                else:
+                    pygame.draw.rect(screen, (20, 20, 20), grass_rect)  # Cinza ainda mais escuro
+
+        # Adiciona uma borda vermelha ao redor do campo de jogo
+        border_rect = pygame.Rect(0, 0, cell_number * cell_size, cell_number * cell_size)
+        pygame.draw.rect(screen, BLOOD_RED, border_rect, 5)
 
     def draw_score(self):
         score_text = str(self.score) 
-        score_surface = game_font.render(score_text,True,TEXT_COLOR)
+        score_surface = game_font.render(score_text, True, TEXT_COLOR)
         score_x = int(cell_size * cell_number - 60)
         score_y = int(cell_size * cell_number - 40)
-        score_rect = score_surface.get_rect(center = (score_x,score_y))
-        apple_rect = apple.get_rect(midright = (score_rect.left,score_rect.centery))
-        bg_rect = pygame.Rect(apple_rect.left,apple_rect.top,apple_rect.width + score_rect.width + 6,apple_rect.height)
+        score_rect = score_surface.get_rect(center=(score_x, score_y))
+        apple_rect = apple.get_rect(midright=(score_rect.left, score_rect.centery))
+        bg_rect = pygame.Rect(apple_rect.left, apple_rect.top, apple_rect.width + score_rect.width + 6, apple_rect.height)
 
-        pygame.draw.rect(screen,NIGHT_GREEN,bg_rect)
-        screen.blit(score_surface,score_rect)
-        screen.blit(apple,apple_rect)
-        pygame.draw.rect(screen,NIGHT_GREEN,bg_rect,2)
+        pygame.draw.rect(screen, NIGHT_GREEN, bg_rect)
+        screen.blit(score_surface, score_rect)
+        screen.blit(apple, apple_rect)
+        pygame.draw.rect(screen, NIGHT_GREEN, bg_rect, 2)
 
     def draw_lives(self):
         lives_text = str(self.lives)
@@ -300,45 +303,41 @@ class MAIN:
         elif self.level == 4:
             self.apples_to_win = 25
 
-# ----- Funções da Interface -----
+
 def main_menu(screen):
     pygame.init()
 
-    title_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 80)
-    text_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 28)
-    start_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 40)
+    # Imagem de fundo da tela inicial
+    background_image = pygame.image.load('img/Capa_Prancheta 1.png').convert()
 
-    phrase = "A fome da criatura é insaciável..."
+    start_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 40)
+    phrase = "Welcome to Snake Game!" 
     typed_text = ""
 
     def draw_screen():
-        screen.fill(BACKGROUND_COLOR)
+       
+        screen.blit(background_image, (0, 0))
 
-        title_surface = title_font.render("SNAKE GAME", True, TEXT_COLOR)
-        title_rect = title_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 5))
-        screen.blit(title_surface, title_rect)
+        start_surface = start_font.render("START", True, TEXT_COLOR)
+        start_rect = start_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 1.3))  # Ajuste a posição y aqui
 
-        phrase_surface = text_font.render(typed_text, True, WHITE)
-        phrase_rect = phrase_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2.5))
-        screen.blit(phrase_surface, phrase_rect)
-
-        start_surface = start_font.render("▶ START", True, TEXT_COLOR)
-        start_rect = start_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 1.8))
-
-        pygame.draw.rect(screen, DARK_GRAY, start_rect.inflate(50, 20), border_radius=15)
+        pygame.draw.rect(screen, BLOOD_RED, start_rect.inflate(50, 20), border_radius=15)
         pygame.draw.rect(screen, WHITE, start_rect.inflate(50, 20), 4, border_radius=15)
         screen.blit(start_surface, start_rect)
 
         pygame.display.update()
         return start_rect
 
+    running = True
+
     for i in range(len(phrase)):
         typed_text += phrase[i]
         draw_screen()
-        time.sleep(0.05) 
+        time.sleep(0.05)
 
     running = True
     while running:
+        draw_screen()  
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -371,11 +370,9 @@ def level_up_screen(screen, level):
                 return
         clock.tick(60)
 
-# ----- Inicialização do Pygame -----
+
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
-cell_size = 40
-cell_number = 20
 screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
 clock = pygame.time.Clock()
 apple = pygame.image.load('img/apple.png').convert_alpha()
