@@ -284,9 +284,12 @@ class MAIN:
         elif self.level == 4:
             self.apples_to_win = 25
 
+
 def main_menu(screen):
     pygame.init()
     background_image = pygame.image.load('img/Capa_Prancheta 1.png').convert()
+    # Redimensionar a imagem para o tamanho da tela
+    background_image = pygame.transform.scale(background_image, screen.get_size())
     start_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 40)
     phrase = "Welcome to Snake Game!"
     typed_text = ""
@@ -342,7 +345,7 @@ def level_up_screen(screen, level):
 
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
-screen = pygame.display.set_mode((700, 600))
+screen = pygame.display.set_mode((600, 600))
 clock = pygame.time.Clock()
 apple = pygame.image.load('img/apple.png').convert_alpha()
 game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
