@@ -137,27 +137,26 @@ class OBSTACLE:
 
 class MAIN:
     def __init__(self):
-        self.snake = SNAKE()
-        self.fruit = FRUIT(self.snake.body)
-        self.lives = 3
-        self.score = 0
-        self.has_moved = False
-        self.apples_collected = 0
-        self.apples_to_win = 2
-        self.xp = 0
-        self.level = 1
-        self.level_up = False
-        self.obstacle = None
-        self.obstacle_chance = 0.2
-        self.speed = 150
-        self.define_level_goals()
-        self.show_objective = True
-        self.objective_timer = 2000
-        self.objective_start_time = 0
-        self.background_colors = [(20, 20, 20), (50, 50, 80), (80, 50, 50), (50, 80, 50)] # Different background colors for each level
-        self.current_background_color = self.background_colors[0]
-        self.level_complete_timer = None
-        self.level_complete = False
+            self.snake = SNAKE()
+            self.fruit = FRUIT(self.snake.body)
+            self.lives = 3
+            self.score = 0
+            self.has_moved = False
+            self.apples_collected = 0
+            self.apples_to_win = 5
+            self.xp = 0
+            self.level = 1
+            self.level_up = False
+            self.obstacle = None
+            self.obstacle_chance = 0.2
+            self.level_complete = False
+            self.speed = 150
+            self.define_level_goals()
+            self.background_colors = [BACKGROUND_COLOR, NIGHT_GREEN, BLOOD_RED, DARK_GRAY]  # Add this line
+            self.current_background_color = self.background_colors[0]  # Initialize current_background_color
+            self.show_objective = True
+            self.objective_timer = 2000
+            self.objective_start_time = 0
 
     def update(self):
         if not self.game_over() and self.has_moved and not self.show_objective and not self.level_complete:
@@ -302,7 +301,7 @@ class MAIN:
 
     def define_level_goals(self):
         if self.level == 1:
-            self.apples_to_win = 2
+            self.apples_to_win = 10
         elif self.level == 2:
             self.apples_to_win = 15
         elif self.level == 3:
