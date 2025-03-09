@@ -2,37 +2,31 @@ import pygame, sys, random
 from pygame.math import Vector2
 import time
 
-# Palea de cores utilizadas
-NIGHT_GREEN = (0, 50, 0)  
-BLOOD_RED = (139, 0, 0) 
-DARK_GRAY = (80, 80, 80)  
-BACKGROUND_COLOR = (20, 20, 20) 
-TEXT_COLOR = (220, 220, 220) 
-WHITE = (200, 200, 200) 
+NIGHT_GREEN = (0, 50, 0)
+BLOOD_RED = (139, 0, 0)
+DARK_GRAY = (80, 80, 80)
+BACKGROUND_COLOR = (20, 20, 20)
+TEXT_COLOR = (220, 220, 220)
+WHITE = (200, 200, 200)
 
-cell_size = 40
-cell_number = 20
+cell_size = 25
+cell_number = 31
 
 class SNAKE:
     def __init__(self):
         self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)]
         self.direction = Vector2(0,0)
         self.new_block = False
-
-        # Imagens da cobrinha
         self.head_up = pygame.image.load('img/head_up.png').convert_alpha()
         self.head_down = pygame.image.load('img/head_down.png').convert_alpha()
         self.head_right = pygame.image.load('img/head_right.png').convert_alpha()
         self.head_left = pygame.image.load('img/head_left.png').convert_alpha()
-        
         self.tail_up = pygame.image.load('img/tail_up.png').convert_alpha()
         self.tail_down = pygame.image.load('img/tail_down.png').convert_alpha()
         self.tail_right = pygame.image.load('img/tail_right.png').convert_alpha()
         self.tail_left = pygame.image.load('img/tail_left.png').convert_alpha()
-
         self.body_vertical = pygame.image.load('img/body_vertical.png').convert_alpha()
         self.body_horizontal = pygame.image.load('img/body_horizontal.png').convert_alpha()
-
         self.body_tr = pygame.image.load('img/body_tr.png').convert_alpha()
         self.body_tl = pygame.image.load('img/body_tl.png').convert_alpha()
         self.body_br = pygame.image.load('img/body_br.png').convert_alpha()
@@ -42,12 +36,10 @@ class SNAKE:
     def draw_snake(self):
         self.update_head_graphics()
         self.update_tail_graphics()
-
         for index,block in enumerate(self.body):
             x_pos = int(block.x * cell_size)
             y_pos = int(block.y * cell_size)
             block_rect = pygame.Rect(x_pos,y_pos,cell_size,cell_size)
-
             if index == 0:
                 screen.blit(self.head,block_rect)
             elif index == len(self.body) - 1:
@@ -104,7 +96,6 @@ class SNAKE:
         self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)]
         self.direction = Vector2(0,0)
 
-
 class FRUIT:
     def __init__(self):
         self.randomize()
@@ -112,7 +103,6 @@ class FRUIT:
     def draw_fruit(self):
         fruit_rect = pygame.Rect(int(self.pos.x * cell_size),int(self.pos.y * cell_size),cell_size,cell_size)
         screen.blit(apple,fruit_rect)
-        
 
     def randomize(self):
         self.x = random.randint(0, cell_number - 1)
@@ -166,7 +156,6 @@ class MAIN:
         self.draw_lives()
         if self.obstacle:
             self.obstacle.draw_obstacle()
-        
         if self.show_objective:
             self.draw_objective()
 
@@ -177,12 +166,10 @@ class MAIN:
             self.snake.play_crunch_sound()
             self.score += 1
             self.apples_collected += 1
-
             if self.apples_collected >= self.apples_to_win:
                 self.xp += 10
                 self.apples_collected = 0
                 self.level_up = True
-
         for block in self.snake.body[1:]:
             if block == self.fruit.pos:
                 self.fruit.randomize()
@@ -190,11 +177,9 @@ class MAIN:
     def check_fail(self):
         if not 0 <= self.snake.body[0].x < cell_number or not 0 <= self.snake.body[0].y < cell_number:
             self.lose_life()
-
         for block in self.snake.body[1:]:
             if block == self.snake.body[0]:
                 self.lose_life()
-
         if self.obstacle and self.snake.body[0] == self.obstacle.pos:
             self.lose_life()
 
@@ -211,23 +196,20 @@ class MAIN:
             for col in range(cell_number):
                 grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
                 if (row + col) % 2 == 0:
-                    pygame.draw.rect(screen, (30, 30, 30), grass_rect)  # Cinza escuro
+                    pygame.draw.rect(screen, (30, 30, 30), grass_rect)
                 else:
-                    pygame.draw.rect(screen, (20, 20, 20), grass_rect)  # Cinza ainda mais escuro
-
-        # Adiciona uma borda vermelha ao redor do campo de jogo
+                    pygame.draw.rect(screen, (20, 20, 20), grass_rect)
         border_rect = pygame.Rect(0, 0, cell_number * cell_size, cell_number * cell_size)
-        pygame.draw.rect(screen, BLOOD_RED, border_rect, 5)
+        pygame.draw.rect(screen, BLOOD_RED, border_rect, 3)  # Aqui é onde a espessura da linha é definida
 
     def draw_score(self):
-        score_text = str(self.score) 
+        score_text = str(self.score)
         score_surface = game_font.render(score_text, True, TEXT_COLOR)
         score_x = int(cell_size * cell_number - 60)
         score_y = int(cell_size * cell_number - 40)
         score_rect = score_surface.get_rect(center=(score_x, score_y))
         apple_rect = apple.get_rect(midright=(score_rect.left, score_rect.centery))
         bg_rect = pygame.Rect(apple_rect.left, apple_rect.top, apple_rect.width + score_rect.width + 6, apple_rect.height)
-
         pygame.draw.rect(screen, NIGHT_GREEN, bg_rect)
         screen.blit(score_surface, score_rect)
         screen.blit(apple, apple_rect)
@@ -276,7 +258,6 @@ class MAIN:
         self.define_level_goals()
         self.show_objective = True
         self.objective_start_time = pygame.time.get_ticks()
-
         if self.level == 2:
             self.speed = 120
         elif self.level == 3:
@@ -303,33 +284,24 @@ class MAIN:
         elif self.level == 4:
             self.apples_to_win = 25
 
-
 def main_menu(screen):
     pygame.init()
-
-    # Imagem de fundo da tela inicial
     background_image = pygame.image.load('img/Capa_Prancheta 1.png').convert()
-
     start_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 40)
-    phrase = "Welcome to Snake Game!" 
+    phrase = "Welcome to Snake Game!"
     typed_text = ""
 
     def draw_screen():
-       
         screen.blit(background_image, (0, 0))
-
         start_surface = start_font.render("START", True, TEXT_COLOR)
-        start_rect = start_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 1.3))  # Ajuste a posição y aqui
-
+        start_rect = start_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 1.3))
         pygame.draw.rect(screen, BLOOD_RED, start_rect.inflate(50, 20), border_radius=15)
         pygame.draw.rect(screen, WHITE, start_rect.inflate(50, 20), 4, border_radius=15)
         screen.blit(start_surface, start_rect)
-
         pygame.display.update()
         return start_rect
 
     running = True
-
     for i in range(len(phrase)):
         typed_text += phrase[i]
         draw_screen()
@@ -337,7 +309,7 @@ def main_menu(screen):
 
     running = True
     while running:
-        draw_screen()  
+        draw_screen()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -355,13 +327,11 @@ def level_up_screen(screen, level):
     font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 35)
     text_surface = font.render(f"Level {level} Completed! Continue...", True, WHITE)
     text_rect = text_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
-
     running = True
     while running:
         screen.fill(BACKGROUND_COLOR)
         screen.blit(text_surface, text_rect)
         pygame.display.update()
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -370,10 +340,9 @@ def level_up_screen(screen, level):
                 return
         clock.tick(60)
 
-
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
-screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_size))
+screen = pygame.display.set_mode((800, 560))
 clock = pygame.time.Clock()
 apple = pygame.image.load('img/apple.png').convert_alpha()
 game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
@@ -382,23 +351,19 @@ SCREEN_UPDATE = pygame.USEREVENT
 
 main_game = MAIN()
 
-# ----- Loop Principal -----
 game_running = main_menu(screen)
 pygame.time.set_timer(SCREEN_UPDATE, main_game.speed)
 
 while True:
     if game_running:
         current_time = pygame.time.get_ticks()
-
         if main_game.show_objective:
             if current_time - main_game.objective_start_time >= main_game.objective_timer:
                 main_game.show_objective = False
-
         if main_game.level_up:
             level_up_screen(screen, main_game.level)
             main_game.next_level()
             main_game.level_up = False
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -409,7 +374,6 @@ while True:
                 if not main_game.game_over():
                     if not main_game.has_moved:
                         main_game.has_moved = True
-
                     if event.key == pygame.K_UP:
                         if main_game.snake.direction.y != 1:
                             main_game.snake.direction = Vector2(0, -1)
@@ -422,15 +386,11 @@ while True:
                     elif event.key == pygame.K_LEFT:
                         if main_game.snake.direction.x != 1:
                             main_game.snake.direction = Vector2(-1, 0)
-
         screen.fill(BACKGROUND_COLOR)
-
         if main_game.game_over():
             main_game.reset_game()
             game_running = False
-
         main_game.draw_elements()
-
     else:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
