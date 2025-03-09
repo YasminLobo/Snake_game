@@ -9,8 +9,8 @@ BACKGROUND_COLOR = (20, 20, 20)
 TEXT_COLOR = (220, 220, 220)
 WHITE = (200, 200, 200)
 
-cell_size = 25
-cell_number = 31
+cell_size = 30
+cell_number = 20
 
 class SNAKE:
     def __init__(self):
@@ -198,9 +198,9 @@ class MAIN:
                 if (row + col) % 2 == 0:
                     pygame.draw.rect(screen, (30, 30, 30), grass_rect)
                 else:
-                    pygame.draw.rect(screen, (20, 20, 20), grass_rect)
+                    pygame.draw.rect(screen, (10, 10, 10), grass_rect)
         border_rect = pygame.Rect(0, 0, cell_number * cell_size, cell_number * cell_size)
-        pygame.draw.rect(screen, BLOOD_RED, border_rect, 3)  # Aqui é onde a espessura da linha é definida
+        pygame.draw.rect(screen, BLOOD_RED, border_rect, 3)
 
     def draw_score(self):
         score_text = str(self.score)
@@ -342,7 +342,7 @@ def level_up_screen(screen, level):
 
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
-screen = pygame.display.set_mode((800, 560))
+screen = pygame.display.set_mode((700, 600))
 clock = pygame.time.Clock()
 apple = pygame.image.load('img/apple.png').convert_alpha()
 game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
