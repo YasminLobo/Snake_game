@@ -137,26 +137,63 @@ class OBSTACLE:
 
 class MAIN:
     def __init__(self):
-            self.snake = SNAKE()
-            self.fruit = FRUIT(self.snake.body)
-            self.lives = 3
-            self.score = 0
-            self.has_moved = False
-            self.apples_collected = 0
-            self.apples_to_win = 5
-            self.xp = 0
-            self.level = 1
-            self.level_up = False
-            self.obstacle = None
-            self.obstacle_chance = 0.2
-            self.level_complete = False
-            self.speed = 150
-            self.define_level_goals()
-            self.background_colors = [BACKGROUND_COLOR, NIGHT_GREEN, BLOOD_RED, DARK_GRAY]  # Add this line
-            self.current_background_color = self.background_colors[0]  # Initialize current_background_color
-            self.show_objective = True
-            self.objective_timer = 2000
-            self.objective_start_time = 0
+        self.snake = SNAKE()
+        self.fruit = FRUIT(self.snake.body)
+        self.lives = 3
+        self.score = 0
+        self.has_moved = False
+        self.apples_collected = 0
+        self.apples_to_win = 5
+        self.xp = 0
+        self.level = 1
+        self.level_up = False
+        self.obstacle = None
+        self.obstacle_chance = 0.2
+        self.level_complete = False
+        self.speed = 150
+        self.background_colors = [BACKGROUND_COLOR, NIGHT_GREEN, BLOOD_RED, DARK_GRAY]
+        self.current_background_color = self.background_colors[0]
+        self.show_objective = True
+        self.objective_timer = 2000
+        self.objective_start_time = 0
+        self.define_level_goals()
+        self.increase_speed()
+
+    def define_level_goals(self):
+        if self.level == 1:
+            self.apples_to_win = 10
+        elif self.level == 2:
+            self.apples_to_win = 15
+        elif self.level == 3:
+            self.apples_to_win = 20
+        elif self.level == 4:
+            self.apples_to_win = 25
+
+    def increase_speed(self):
+        self.speed = max(50, self.speed - 15)
+        print(f"Snake speed increased to: {self.speed}")
+
+    def next_level(self):
+        self.level += 1
+        if self.level > 4:
+            self.level = 1  # Wrap around to level 1 if we exceed the number of levels
+
+        self.current_background_color = self.background_colors[self.level - 1]
+        self.apples_collected = 0
+        self.fruit = FRUIT(self.snake.body)  # Passa o corpo da cobra atualizado
+        self.define_level_goals()
+        self.show_objective = True
+        self.objective_start_time = pygame.time.get_ticks()
+        self.increase_speed()  # Aumenta a velocidade da cobra
+        self.level_complete = False
+        self.level_complete_timer = None
+        pygame.time.set_timer(SCREEN_UPDATE, self.speed)
+
+        # Redirecionar para a tela inicial
+        selected_level = main_menu(screen)
+        self.level = selected_level
+        self.define_level_goals()
+        self.increase_speed()
 
     def update(self):
         if not self.game_over() and self.has_moved and not self.show_objective and not self.level_complete:
@@ -174,6 +211,8 @@ class MAIN:
             self.obstacle.draw_obstacle()
         if self.show_objective:
             self.draw_objective()
+
+    # Outras funções da classe MAIN...
 
     def check_collision(self):
         if self.fruit.pos == self.snake.body[0]:
@@ -281,23 +320,27 @@ class MAIN:
         self.snake.reset()
         self.has_moved = False
         self.snake.direction = Vector2(0, 0)
+def next_level(self):
+    self.level += 1
+    if self.level > 4:
+        self.level = 1  # Wrap around to level 1 if we exceed the number of levels
 
-    def next_level(self):
-        self.level += 1
-        if self.level > len(self.background_colors):
-            self.level = 1  # Wrap around to level 1 if we exceed the number of levels
+    self.current_background_color = self.background_colors[self.level - 1]
+    self.apples_collected = 0
+    self.fruit = FRUIT(self.snake.body)  # Passa o corpo da cobra atualizado
+    self.define_level_goals()
+    self.show_objective = True
+    self.objective_start_time = pygame.time.get_ticks()
+    self.increase_speed()  # Aumenta a velocidade da cobra
+    self.level_complete = False
+    self.level_complete_timer = None
+    pygame.time.set_timer(SCREEN_UPDATE, self.speed)
 
-        self.current_background_color = self.background_colors[self.level - 1]
-        self.apples_collected = 0
-        #self.reset_snake() #MANTENHA O TAMANHO DA COBRA
-        self.fruit = FRUIT(self.snake.body)  # Passa o corpo da cobra atualizado
-        self.define_level_goals()
-        self.show_objective = True
-        self.objective_start_time = pygame.time.get_ticks()
-        self.increase_speed()  # Aumenta a velocidade da cobra
-        self.level_complete = False
-        self.level_complete_timer = None
-        pygame.time.set_timer(SCREEN_UPDATE, self.speed)
+    # Redirecionar para a tela inicial
+    selected_level = main_menu(screen)
+    self.level = selected_level
+    self.define_level_goals()
+    self.increase_speed()
 
     def define_level_goals(self):
         if self.level == 1:
@@ -313,26 +356,26 @@ class MAIN:
         # Aumenta a velocidade da cobra a cada nível
         self.speed = max(50, self.speed - 15)  # Diminui o intervalo, aumentando a velocidade
         print(f"Snake speed increased to: {self.speed}")
-
-
 def main_menu(screen):
     pygame.init()
     background_image = pygame.image.load('img/Capa_Prancheta 1.png').convert()
-    # Redimensionar a imagem para o tamanho da tela
     background_image = pygame.transform.scale(background_image, screen.get_size())
-    start_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 40)
+    start_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 30)
     phrase = "Welcome to Snake Game!"
     typed_text = ""
 
     def draw_screen():
         screen.blit(background_image, (0, 0))
-        start_surface = start_font.render("START", True, TEXT_COLOR)
-        start_rect = start_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 1.3))
-        pygame.draw.rect(screen, BLOOD_RED, start_rect.inflate(50, 20), border_radius=15)
-        pygame.draw.rect(screen, WHITE, start_rect.inflate(50, 20), 4, border_radius=15)
-        screen.blit(start_surface, start_rect)
+        level_buttons = []
+        for i in range(1, 5):
+            button_surface = start_font.render(f"Level {i}", True, TEXT_COLOR)
+            button_rect = button_surface.get_rect(center=(screen.get_width() // 2 + (i - 2.5) * 150, screen.get_height() // 2 + 150))  # Mais para baixo
+            pygame.draw.rect(screen, BLOOD_RED, button_rect.inflate(30, 10), border_radius=15)
+            pygame.draw.rect(screen, WHITE, button_rect.inflate(30, 10), 4, border_radius=15)
+            screen.blit(button_surface, button_rect)
+            level_buttons.append((button_rect, i))
         pygame.display.update()
-        return start_rect
+        return level_buttons
 
     running = True
     for i in range(len(phrase)):
@@ -342,38 +385,21 @@ def main_menu(screen):
 
     running = True
     while running:
-        draw_screen()
+        level_buttons = draw_screen()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                if draw_screen().collidepoint(mouse_pos):
-                    return True
+                for button_rect, level in level_buttons:
+                    if button_rect.collidepoint(mouse_pos):
+                        return level
             elif event.type == pygame.KEYDOWN:
-                return True
+                return 1
         clock.tick(60)
-    return False
-
-def level_up_screen(screen, level):
-    font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 35)
-    text_surface = font.render(f"Level {level} Completed! Continue...", True, WHITE)
-    text_rect = text_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
-    running = True
-    while running:
-        screen.fill(BACKGROUND_COLOR)
-        screen.blit(text_surface, text_rect)
-        pygame.display.update()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                return
-        clock.tick(60)
-
-pygame.mixer.pre_init(44100, -16, 2, 512)
+    return 1
+    pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 screen = pygame.display.set_mode((600, 600))
 clock = pygame.time.Clock()
@@ -382,9 +408,13 @@ game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
 
 SCREEN_UPDATE = pygame.USEREVENT
 
+selected_level = main_menu(screen)
 main_game = MAIN()
+main_game.level = selected_level
+main_game.define_level_goals()
+main_game.increase_speed()
 
-game_running = main_menu(screen)
+game_running = True
 pygame.time.set_timer(SCREEN_UPDATE, main_game.speed)
 
 while True:
@@ -394,7 +424,7 @@ while True:
             if current_time - main_game.objective_start_time >= main_game.objective_timer:
                 main_game.show_objective = False
 
-        screen.fill(main_game.current_background_color) # Setting the background color
+        screen.fill(main_game.current_background_color)  # Setting the background color
         main_game.draw_elements()
         if main_game.level_complete:
             main_game.draw_level_complete()
@@ -402,7 +432,7 @@ while True:
                 main_game.next_level()
         
     else:
-        screen.fill(BACKGROUND_COLOR) # Fill with default background color when game is over
+        screen.fill(BACKGROUND_COLOR)  # Fill with default background color when game is over
 
     if not game_running:
         for event in pygame.event.get():
@@ -410,11 +440,14 @@ while True:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
-                if main_menu(screen):
-                    game_running = True
-                    main_game.reset_game()
-                    pygame.time.set_timer(SCREEN_UPDATE, main_game.speed)
-                    break
+                selected_level = main_menu(screen)
+                main_game = MAIN()
+                main_game.level = selected_level
+                main_game.define_level_goals()
+                main_game.increase_speed()
+                game_running = True
+                pygame.time.set_timer(SCREEN_UPDATE, main_game.speed)
+                break
     else:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
