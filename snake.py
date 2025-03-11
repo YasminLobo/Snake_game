@@ -292,7 +292,7 @@ class MAIN:
                     pygame.draw.rect(screen, (30, 30, 30), grass_rect) # Desenha um retângulo cinza escuro.
                 else:
                     pygame.draw.rect(screen, (10, 10, 10), grass_rect) # Desenha um retângulo cinza muito escuro.
-        border_rect = pygame.Rect(0, 0, CELL_NUMBER * CELL_SIZE, CELL_NUMBER * CELL_SIZE)
+        border_rect = pygame.Rect(0, 0, cell_number * cell_size, cell_number * cell_size)
         pygame.draw.rect(screen, BLOOD_RED, border_rect, 3)
 
     def draw_score(self):
