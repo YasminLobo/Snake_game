@@ -15,6 +15,9 @@ GOLD = (255, 215, 0)
 CELL_SIZE = 30
 CELL_NUMBER = 20
 
+JUMP_SCARE_DURATION = 2000  # Milissegundos para exibir o jump scare
+JUMP_SCARE_FADE_DURATION = 500  # Milissegundos para fade-in e fade-out do jump scare
+
 # --- FUNÇÕES AUXILIARES ---
 
 def generate_random_position(occupied_positions):
@@ -36,33 +39,42 @@ def check_collision(pos1, pos2):
 
 class Snake:
     """Representa a cobra no jogo."""
-    def __init__(self):
+    def __init__(self):  # Remova o parâmetro level
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(0, 0)
         self.new_block = False  # Flag para indicar se um novo bloco deve ser adicionado
-
-        # Carrega imagens das partes do corpo da cobra
-        self.head_up = pygame.image.load('img/JA/j_head_up.png').convert_alpha()
-        self.head_down = pygame.image.load('img/JA/j_head_down.png').convert_alpha()
-        self.head_right = pygame.image.load('img/JA/j_head_right.png').convert_alpha()
-        self.head_left = pygame.image.load('img/JA/j_head_left.png').convert_alpha()
-
-        self.tail_up = pygame.image.load('img/JA/j_tail_up.png').convert_alpha()
-        self.tail_down = pygame.image.load('img/JA/j_tail_down.png').convert_alpha()
-        self.tail_right = pygame.image.load('img/JA/j_tail_right.png').convert_alpha()
-        self.tail_left = pygame.image.load('img/JA/j_tail_left.png').convert_alpha()
-
-        self.body_vertical = pygame.image.load('img/JA/j_body_vertical.png').convert_alpha()
-        self.body_horizontal = pygame.image.load('img/JA/j_body_horizontal.png').convert_alpha()
-
-        self.body_tr = pygame.image.load('img/JA/j_body_tr.png').convert_alpha()  # canto superior direito
-        self.body_tl = pygame.image.load('img/JA/j_body_tl.png').convert_alpha()  # canto superior esquerdo
-        self.body_br = pygame.image.load('img/JA/j_body_br.png').convert_alpha()  # canto inferior direito
-        self.body_bl = pygame.image.load('img/JA/j_body_bl.png').convert_alpha()  # canto inferior esquerdo
+        self.load_images() # nao passa parametro
 
         # Carrega som de mastigação
         self.crunch_sound = pygame.mixer.Sound('som/crunch.wav')
 
+    def load_images(self): # Remova o parâmetro level
+        """Carrega imagens das partes do corpo da cobra."""
+        base_path = 'img/JA' # Caminho base para as imagens
+
+        try:
+            self.head_up = pygame.image.load(f'{base_path}/j_head_up.png').convert_alpha()
+            self.head_down = pygame.image.load(f'{base_path}/j_head_down.png').convert_alpha()
+            self.head_right = pygame.image.load(f'{base_path}/j_head_right.png').convert_alpha()
+            self.head_left = pygame.image.load(f'{base_path}/j_head_left.png').convert_alpha()
+
+            self.tail_up = pygame.image.load(f'{base_path}/j_tail_up.png').convert_alpha()
+            self.tail_down = pygame.image.load(f'{base_path}/j_tail_down.png').convert_alpha()
+            self.tail_right = pygame.image.load(f'{base_path}/j_tail_right.png').convert_alpha()
+            self.tail_left = pygame.image.load(f'{base_path}/j_tail_left.png').convert_alpha()
+
+            self.body_vertical = pygame.image.load(f'{base_path}/j_body_vertical.png').convert_alpha()
+            self.body_horizontal = pygame.image.load(f'{base_path}/j_body_horizontal.png').convert_alpha()
+
+            self.body_tr = pygame.image.load(f'{base_path}/j_body_tr.png').convert_alpha()  # canto superior direito
+            self.body_tl = pygame.image.load(f'{base_path}/j_body_tl.png').convert_alpha()  # canto superior esquerdo
+            self.body_br = pygame.image.load(f'{base_path}/j_body_br.png').convert_alpha()  # canto inferior direito
+            self.body_bl = pygame.image.load(f'{base_path}/j_body_bl.png').convert_alpha()  # canto inferior esquerdo
+
+        except FileNotFoundError as e:
+            print(f"Erro ao carregar imagens da cobra: {e}.  Certifique-se de que os nomes das imagens estejam corretos (por exemplo, `j_head_up.png` em todos os diretórios) e que as pastas existam.")
+            pygame.quit()
+            sys.exit()
 
     def draw_snake(self):
         """Desenha a cobra na tela, usando as imagens corretas para cabeça, cauda e segmentos do corpo."""
@@ -146,7 +158,6 @@ class Snake:
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(0, 0)
 
-
 class Fruit:
     """Representa a fruta que a cobra come."""
     def __init__(self, snake_body, obstacle_positions):
@@ -177,14 +188,11 @@ class Fruit:
         """Marca a fruta como uma fruta especial (para implementação futura)."""
         self.is_special = True
 
-
 class Obstacle:
     """Representa um obstáculo que a cobra deve evitar."""
-
     def __init__(self):
         self.pos = generate_random_position([])  # Posição aleatória inicial
         self.rect = pygame.Rect(int(self.pos.x * CELL_SIZE), int(self.pos.y * CELL_SIZE), CELL_SIZE, CELL_SIZE)
-
 
     def draw_obstacle(self):
         """Desenha o obstáculo na tela."""
@@ -196,42 +204,66 @@ class Obstacle:
         self.pos = generate_random_position(occupied_positions)
         self.rect = pygame.Rect(int(self.pos.x * CELL_SIZE), int(self.pos.y * CELL_SIZE), CELL_SIZE, CELL_SIZE)
 
-
 # --- LÓGICA DO JOGO ---
 
 class Main:
     """Gerencia a lógica principal do jogo, incluindo níveis, pontuação, colisões e estado do jogo."""
     def __init__(self):
-        self.snake = Snake()
+        self.level = 1
+        self.snake = Snake()  # Não passe o nível aqui!
         self.obstacles = [Obstacle() for _ in range(5)]  # Cria 5 objetos de obstáculo
         self.obstacle_positions = [obstacle.pos for obstacle in self.obstacles]  # Armazena as posições dos obstáculos como Vector2
         self.fruit = Fruit(self.snake.body, self.obstacle_positions)
+
         self.lives = 3
         self.score = 0
         self.has_moved = False  # Flag para impedir o movimento antes que uma tecla seja pressionada
         self.apples_collected = 0
-        self.apples_to_win = 5 # Valor inicial, pode ser alterado em define_level_goals
+        self.apples_to_win = 5  # Valor inicial, pode ser alterado em define_level_goals
         self.xp = 0
-        self.level = 1
-        self.level_up = False # Flag para identificar o aumento de nível
+        self.level_up = False  # Flag para identificar o aumento de nível
         self.obstacle_chance = 0.2
         self.level_complete = False
-        self.speed = 150 # Milissegundos entre as atualizações da tela
+        self.speed = 150  # Milissegundos entre as atualizações da tela
         self.background_colors = [BACKGROUND_COLOR, NIGHT_GREEN, BLOOD_RED, DARK_GRAY]
-        self.current_background_color = self.background_colors[0] # Define a cor de fundo inicial
+        self.current_background_color = self.background_colors[0]  # Define a cor de fundo inicial
         self.show_objective = True
-        self.objective_timer = 2000 # Milissegundos para mostrar o objetivo
+        self.objective_timer = 2000  # Milissegundos para mostrar o objetivo
         self.objective_start_time = 0
         self.define_level_goals()
         self.increase_speed()
 
         # Carrega a imagem de vida
-        self.life_image = pygame.image.load('img/coracao.png').convert_alpha()  # Substitua 'img/coracao.png' pelo caminho da sua imagem
-        self.life_image = pygame.transform.scale(self.life_image, (25, 25))  # Ajusta o tamanho conforme necessário
+        try:
+            self.life_image = pygame.image.load('img/coracao.png').convert_alpha()  # Substitua 'img/coracao.png' pelo caminho da sua imagem
+            self.life_image = pygame.transform.scale(self.life_image, (25, 25))  # Ajusta o tamanho conforme necessário
 
-        # Carrega a imagem de Game Over
-        self.game_over_image = pygame.image.load('img/game-over_Prancheta 1.jpg').convert_alpha() # substitua pelo nome correto
-        self.game_over_image = pygame.transform.scale(self.game_over_image, (600, 600))  # Ajuste conforme necessário
+            # Carrega a imagem de Game Over
+            self.game_over_image = pygame.image.load('img/game-over_Prancheta 1.jpg').convert_alpha()  # substitua pelo nome correto
+            self.game_over_image = pygame.transform.scale(self.game_over_image, (600, 600))  # Ajuste conforme necessário
+        except FileNotFoundError as e:
+            print(f"Erro ao carregar imagens: {e}. Verifique os arquivos de imagem (coracao.png, game-over_Prancheta 1.jpg).")
+            pygame.quit()
+            sys.exit()
+
+        # Carrega a imagem do jump scare
+        try:
+            self.jump_scare_image = pygame.image.load('img/jumpscare.jpg').convert_alpha()  # Substitua 'img/jumpscare.png' pelo caminho da sua imagem
+            self.jump_scare_image = pygame.transform.scale(self.jump_scare_image, screen.get_size())  # Ajusta para o tamanho da tela
+        except FileNotFoundError as e:
+            print(f"Erro ao carregar a imagem do jump scare: {e}. Verifique o arquivo 'img/jumpscare.png'.")
+            self.jump_scare_image = None  # Desativa o jump scare se a imagem não for encontrada
+
+        # Carrega o som do jump scare
+        try:
+            self.jump_scare_sound = pygame.mixer.Sound('som/jumpscare.mp3')  # Substitua 'som/jumpscare.wav' pelo caminho do seu som
+        except FileNotFoundError:
+            print("Aviso: Arquivo de som do jump scare não encontrado. O jogo continuará sem o som.")
+            self.jump_scare_sound = None
+
+        self.show_jump_scare = False
+        self.jump_scare_start_time = 0
+        self.jump_scare_alpha = 0
 
     def define_level_goals(self):
         """Define quantas maçãs a cobra deve comer para completar o nível atual."""
@@ -275,6 +307,7 @@ class Main:
         # Redireciona para a tela inicial
         selected_level = main_menu(screen)
         self.level = selected_level
+        # self.snake = Snake(self.level)  # Cria uma nova cobra com a skin do novo nível (removido)
         self.define_level_goals()
         self.increase_speed()
 
@@ -405,6 +438,7 @@ class Main:
         self.apples_collected = 0
         self.xp = 0
         self.level = 1
+        # self.snake = Snake(self.level) # Define a cobra do nível 1 novamente (removido)
         self.level_up = False
         self.obstacle_chance = 0.2
         self.speed = 150
@@ -415,6 +449,8 @@ class Main:
         self.current_background_color = self.background_colors[0]  # Redefine a cor de fundo
         self.level_complete = False
         self.level_complete_timer = None
+        self.show_jump_scare = False
+        self.jump_scare_alpha = 0
 
     def reset_snake(self):
         """Redefine a cobra para sua posição e direção inicial."""
@@ -432,7 +468,7 @@ class Main:
         button_color = BLOOD_RED
         button_text_color = WHITE
         button_x = screen.get_width() // 2 - button_width // 2
-        button_y = screen.get_height() // 2 + 100 # Posição do botão
+        button_y = screen.get_height() // 2 + 100  # Posição do botão
 
         # Cria o retângulo do botão
         button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
@@ -448,15 +484,60 @@ class Main:
         # Desenha o texto no botão
         screen.blit(text_surface, text_rect)
 
-        return button_rect # Retorna o retângulo do botão para verificar cliques
+        return button_rect  # Retorna o retângulo do botão para verificar cliques
+
+    def trigger_jump_scare(self):
+        """Inicia a sequência do jump scare."""
+        if self.jump_scare_image:
+            self.show_jump_scare = True
+            self.jump_scare_start_time = pygame.time.get_ticks()
+            self.jump_scare_alpha = 0  # Reinicia o alpha para o fade-in começar corretamente
+            if self.jump_scare_sound:
+                self.jump_scare_sound.play()  # Toca o som do jump scare
+
+    def draw_jump_scare(self):
+        """Desenha o jump scare com um efeito de fade-in e fade-out."""
+        if self.show_jump_scare and self.jump_scare_image:
+            elapsed_time = pygame.time.get_ticks() - self.jump_scare_start_time
+
+            if elapsed_time < JUMP_SCARE_FADE_DURATION:
+                # Fade-in
+                alpha = int((elapsed_time / JUMP_SCARE_FADE_DURATION) * 255)
+            elif elapsed_time > JUMP_SCARE_DURATION - JUMP_SCARE_FADE_DURATION:
+                # Fade-out
+                fade_out_time = elapsed_time - (JUMP_SCARE_DURATION - JUMP_SCARE_FADE_DURATION)
+                alpha = int(((JUMP_SCARE_FADE_DURATION - fade_out_time) / JUMP_SCARE_FADE_DURATION) * 255)
+            else:
+                # Totalmente visível
+                alpha = 255
+
+            # Garante que o alpha esteja dentro do intervalo válido
+            alpha = max(0, min(alpha, 255))
+
+            # Cria uma cópia da imagem do jump scare e define sua transparência
+            temp_surface = self.jump_scare_image.copy()
+            temp_surface.set_alpha(alpha)
+
+            # Desenha a imagem com transparência
+            screen.blit(temp_surface, (0, 0))
+
+            # Se o tempo total exceder a duração, oculta o jump scare
+            if elapsed_time > JUMP_SCARE_DURATION:
+                self.show_jump_scare = False
 
 # --- MENU ---
 
 def main_menu(screen):
     """Exibe o menu principal e permite que o jogador selecione um nível."""
     pygame.init()
-    background_image = pygame.image.load('img/Capa_Prancheta 1.png').convert()
-    background_image = pygame.transform.scale(background_image, screen.get_size())
+    try:
+        background_image = pygame.image.load('img/Capa_Prancheta 1.png').convert()
+        background_image = pygame.transform.scale(background_image, screen.get_size())
+    except FileNotFoundError as e:
+        print(f"Erro ao carregar imagem do menu: {e}. Verifique o arquivo 'img/Capa_Prancheta 1.png'.")
+        pygame.quit()
+        sys.exit()
+
     start_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 30)
     phrase = "Bem-vindo ao Jogo da Cobra!"
     typed_text = ""
@@ -505,15 +586,37 @@ pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 screen = pygame.display.set_mode((600, 600))
 clock = pygame.time.Clock()
-apple = pygame.image.load('img/apple.png').convert_alpha()  # Carrega a imagem da maçã aqui
+
+try:
+    apple = pygame.image.load('img/apple.png').convert_alpha()  # Carrega a imagem # Carrega a imagem da maçã aqui
+except FileNotFoundError as e:
+    print(f"Erro ao carregar imagem da maçã: {e}. Verifique o arquivo 'img/apple.png'.")
+    pygame.quit()
+    sys.exit()
+
 game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
 
-SCREEN_UPDATE = pygame.USEREVENT  # Evento personalizado para atualizar a tela
+SCREEN_UPDATE = pygame.USEREVENT # Evento personalizado para atualizar a tela
 
 # Carrega a imagem do obstáculo
-obstaculo_image_path = os.path.join(os.path.dirname(__file__), 'img', 'obstaculo.png')
-obstaculo_image = pygame.image.load(obstaculo_image_path)
-obstaculo_image = pygame.transform.scale(obstaculo_image, (CELL_SIZE, CELL_SIZE))  # Redimensiona a imagem para o tamanho do obstáculo
+try:
+    obstaculo_image_path = os.path.join(os.path.dirname(__file__), 'img', 'obstaculo.png')
+    obstaculo_image = pygame.image.load(obstaculo_image_path)
+    obstaculo_image = pygame.transform.scale(obstaculo_image, (CELL_SIZE, CELL_SIZE))  # Redimensiona a imagem para o tamanho do obstáculo
+except FileNotFoundError as e:
+    print(f"Erro ao carregar imagem do obstáculo: {e}. Verifique o arquivo 'img/obstaculo.png'.")
+    pygame.quit()
+    sys.exit()
+
+# Inicia a música de fundo
+try:
+    pygame.mixer.music.load('som/musica_de_fundo.mp3')  # Substitua 'som/musica_de_fundo.mp3' pelo caminho da sua música
+    pygame.mixer.music.set_volume(0.5)  # Define o volume da música (opcional)
+    pygame.mixer.music.play(-1)  # Toca a música em loop (-1 significa loop infinito)
+except pygame.error as e:
+    print(f"Erro ao carregar música de fundo: {e}. Verifique o arquivo 'som/musica_de_fundo.mp3'.")
+    pygame.quit()
+    sys.exit()
 
 # Mostra o menu principal e obtém o nível selecionado
 selected_level = main_menu(screen)
@@ -527,7 +630,6 @@ main_game.increase_speed()
 # --- LOOP DO JOGO ---
 game_running = True
 pygame.time.set_timer(SCREEN_UPDATE, main_game.speed)
-
 while True:
     if game_running:
         current_time = pygame.time.get_ticks()
