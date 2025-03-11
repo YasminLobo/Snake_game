@@ -3,7 +3,7 @@ from pygame.math import Vector2
 import time
 import os
 
-# --- CONSTANTS ---
+# --- CONSTANTES ---
 NIGHT_GREEN = (0, 50, 0)
 BLOOD_RED = (139, 0, 0)
 DARK_GRAY = (80, 80, 80)
@@ -15,57 +15,57 @@ GOLD = (255, 215, 0)
 CELL_SIZE = 30
 CELL_NUMBER = 20
 
-# --- HELPER FUNCTIONS ---
+# --- FUNÇÕES AUXILIARES ---
 
 def generate_random_position(occupied_positions):
-    """Generates a random position for an object, ensuring it's not in occupied positions."""
+    """Gera uma posição aleatória para um objeto, garantindo que não esteja em posições ocupadas."""
     x = random.randint(0, CELL_NUMBER - 1)
     y = random.randint(0, CELL_NUMBER - 1)
     pos = Vector2(x, y)
 
     if pos in occupied_positions:
-        return generate_random_position(occupied_positions)  # Recursive call if position is occupied
+        return generate_random_position(occupied_positions)  # Chamada recursiva se a posição estiver ocupada
 
     return pos
 
 def check_collision(pos1, pos2):
-    """Checks if two positions are the same, indicating a collision."""
+    """Verifica se duas posições são as mesmas, indicando uma colisão."""
     return pos1 == pos2
 
-# --- GAME OBJECTS ---
+# --- OBJETOS DO JOGO ---
 
 class Snake:
-    """Represents the snake in the game."""
+    """Representa a cobra no jogo."""
     def __init__(self):
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(0, 0)
-        self.new_block = False  # Flag to indicate if a new block should be added
+        self.new_block = False  # Flag para indicar se um novo bloco deve ser adicionado
 
-        # Load snake body part images
-        self.head_up = pygame.image.load('img/head_up.png').convert_alpha()
-        self.head_down = pygame.image.load('img/head_down.png').convert_alpha()
-        self.head_right = pygame.image.load('img/head_right.png').convert_alpha()
-        self.head_left = pygame.image.load('img/head_left.png').convert_alpha()
+        # Carrega imagens das partes do corpo da cobra
+        self.head_up = pygame.image.load('img/JA/j_head_up.png').convert_alpha()
+        self.head_down = pygame.image.load('img/JA/j_head_down.png').convert_alpha()
+        self.head_right = pygame.image.load('img/JA/j_head_right.png').convert_alpha()
+        self.head_left = pygame.image.load('img/JA/j_head_left.png').convert_alpha()
 
-        self.tail_up = pygame.image.load('img/tail_up.png').convert_alpha()
-        self.tail_down = pygame.image.load('img/tail_down.png').convert_alpha()
-        self.tail_right = pygame.image.load('img/tail_right.png').convert_alpha()
-        self.tail_left = pygame.image.load('img/tail_left.png').convert_alpha()
+        self.tail_up = pygame.image.load('img/JA/j_tail_up.png').convert_alpha()
+        self.tail_down = pygame.image.load('img/JA/j_tail_down.png').convert_alpha()
+        self.tail_right = pygame.image.load('img/JA/j_tail_right.png').convert_alpha()
+        self.tail_left = pygame.image.load('img/JA/j_tail_left.png').convert_alpha()
 
-        self.body_vertical = pygame.image.load('img/body_vertical.png').convert_alpha()
-        self.body_horizontal = pygame.image.load('img/body_horizontal.png').convert_alpha()
+        self.body_vertical = pygame.image.load('img/JA/j_body_vertical.png').convert_alpha()
+        self.body_horizontal = pygame.image.load('img/JA/j_body_horizontal.png').convert_alpha()
 
-        self.body_tr = pygame.image.load('img/body_tr.png').convert_alpha()  # top-right corner
-        self.body_tl = pygame.image.load('img/body_tl.png').convert_alpha()  # top-left corner
-        self.body_br = pygame.image.load('img/body_br.png').convert_alpha()  # bottom-right corner
-        self.body_bl = pygame.image.load('img/body_bl.png').convert_alpha()  # bottom-left corner
+        self.body_tr = pygame.image.load('img/JA/j_body_tr.png').convert_alpha()  # canto superior direito
+        self.body_tl = pygame.image.load('img/JA/j_body_tl.png').convert_alpha()  # canto superior esquerdo
+        self.body_br = pygame.image.load('img/JA/j_body_br.png').convert_alpha()  # canto inferior direito
+        self.body_bl = pygame.image.load('img/JA/j_body_bl.png').convert_alpha()  # canto inferior esquerdo
 
-        # Load crunch sound
+        # Carrega som de mastigação
         self.crunch_sound = pygame.mixer.Sound('som/crunch.wav')
 
 
     def draw_snake(self):
-        """Draws the snake on the screen, using the correct images for head, tail, and body segments."""
+        """Desenha a cobra na tela, usando as imagens corretas para cabeça, cauda e segmentos do corpo."""
         self.update_head_graphics()
         self.update_tail_graphics()
 
@@ -79,7 +79,7 @@ class Snake:
             elif index == len(self.body) - 1:
                 screen.blit(self.tail, block_rect)
             else:
-                # Determine body segment orientation based on neighboring segments
+                # Determina a orientação do segmento do corpo com base nos segmentos vizinhos
                 previous_block = self.body[index + 1] - block
                 next_block = self.body[index - 1] - block
 
@@ -87,7 +87,7 @@ class Snake:
                     screen.blit(self.body_vertical, block_rect)
                 elif previous_block.y == next_block.y:
                     screen.blit(self.body_horizontal, block_rect)
-                else:  # Corner pieces
+                else:  # Peças de canto
                     if previous_block.x == -1 and next_block.y == -1 or previous_block.y == -1 and next_block.x == -1:
                         screen.blit(self.body_tl, block_rect)
                     elif previous_block.x == -1 and next_block.y == 1 or previous_block.y == 1 and next_block.x == -1:
@@ -98,7 +98,7 @@ class Snake:
                         screen.blit(self.body_br, block_rect)
 
     def update_head_graphics(self):
-        """Updates the snake's head image based on its movement direction."""
+        """Atualiza a imagem da cabeça da cobra com base em sua direção de movimento."""
         head_relation = self.body[1] - self.body[0]
         if head_relation == Vector2(1, 0):
             self.head = self.head_left
@@ -110,7 +110,7 @@ class Snake:
             self.head = self.head_down
 
     def update_tail_graphics(self):
-        """Updates the snake's tail image based on its movement direction."""
+        """Atualiza a imagem da cauda da cobra com base em sua direção de movimento."""
         tail_relation = self.body[-2] - self.body[-1]
         if tail_relation == Vector2(1, 0):
             self.tail = self.tail_left
@@ -122,51 +122,51 @@ class Snake:
             self.tail = self.tail_down
 
     def move_snake(self):
-        """Moves the snake by adding a new head and removing the tail (unless a block is added)."""
+        """Move a cobra adicionando uma nova cabeça e removendo a cauda (a menos que um bloco seja adicionado)."""
         if self.new_block:
             body_copy = self.body[:]
-            body_copy.insert(0, body_copy[0] + self.direction)  # Add new head
+            body_copy.insert(0, body_copy[0] + self.direction)  # Adiciona nova cabeça
             self.body = body_copy[:]
             self.new_block = False
         else:
-            body_copy = self.body[:-1]  # Remove tail
-            body_copy.insert(0, body_copy[0] + self.direction)  # Add new head
+            body_copy = self.body[:-1]  # Remove a cauda
+            body_copy.insert(0, body_copy[0] + self.direction)  # Adiciona nova cabeça
             self.body = body_copy[:]
 
     def add_block(self):
-        """Sets the flag to add a new block to the snake on the next move."""
+        """Define a flag para adicionar um novo bloco à cobra no próximo movimento."""
         self.new_block = True
 
     def play_crunch_sound(self):
-        """Plays the crunch sound effect."""
+        """Toca o efeito sonoro de mastigação."""
         self.crunch_sound.play()
 
     def reset(self):
-        """Resets the snake to its initial state."""
+        """Redefine a cobra para seu estado inicial."""
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(0, 0)
 
 
 class Fruit:
-    """Represents the fruit that the snake eats."""
+    """Representa a fruta que a cobra come."""
     def __init__(self, snake_body, obstacle_positions):
         self.snake_body = snake_body
-        self.obstacle_positions = obstacle_positions  # Store obstacle positions as Vector2
+        self.obstacle_positions = obstacle_positions  # Armazena as posições dos obstáculos como Vector2
         self.is_special = False
         self.randomize()
 
     def draw_fruit(self):
-        """Draws the fruit on the screen."""
+        """Desenha a fruta na tela."""
         fruit_rect = pygame.Rect(int(self.pos.x * CELL_SIZE), int(self.pos.y * CELL_SIZE), CELL_SIZE, CELL_SIZE)
-        screen.blit(apple, fruit_rect)  # Assuming 'apple' is a loaded image
+        screen.blit(apple, fruit_rect)  # Supondo que 'apple' seja uma imagem carregada
 
     def randomize(self):
-        """Generates a random position for the fruit, ensuring it's not on the snake or obstacles."""
+        """Gera uma posição aleatória para a fruta, garantindo que não esteja na cobra ou nos obstáculos."""
         self.x = random.randint(0, CELL_NUMBER - 1)
         self.y = random.randint(0, CELL_NUMBER - 1)
         self.pos = Vector2(self.x, self.y)
 
-        # Ensure fruit is not on snake or obstacles
+        # Garante que a fruta não esteja na cobra ou nos obstáculos
         while self.pos in self.snake_body or self.pos in self.obstacle_positions:
             self.x = random.randint(0, CELL_NUMBER - 1)
             self.y = random.randint(0, CELL_NUMBER - 1)
@@ -174,59 +174,67 @@ class Fruit:
         self.is_special = False
 
     def make_special(self):
-        """Marks the fruit as a special fruit (for future implementation)."""
+        """Marca a fruta como uma fruta especial (para implementação futura)."""
         self.is_special = True
 
 
 class Obstacle:
-    """Represents an obstacle that the snake must avoid."""
+    """Representa um obstáculo que a cobra deve evitar."""
 
     def __init__(self):
-        self.pos = generate_random_position([])  # Initial random position
+        self.pos = generate_random_position([])  # Posição aleatória inicial
         self.rect = pygame.Rect(int(self.pos.x * CELL_SIZE), int(self.pos.y * CELL_SIZE), CELL_SIZE, CELL_SIZE)
 
 
     def draw_obstacle(self):
-        """Draws the obstacle on the screen."""
+        """Desenha o obstáculo na tela."""
         self.rect = pygame.Rect(int(self.pos.x * CELL_SIZE), int(self.pos.y * CELL_SIZE), CELL_SIZE, CELL_SIZE)
-        screen.blit(obstaculo_image, self.rect)  # Draw the obstacle image
+        screen.blit(obstaculo_image, self.rect)  # Desenha a imagem do obstáculo
 
     def randomize(self, occupied_positions):
-        """Generates a random position for the obstacle, avoiding occupied positions."""
+        """Gera uma posição aleatória para o obstáculo, evitando posições ocupadas."""
         self.pos = generate_random_position(occupied_positions)
         self.rect = pygame.Rect(int(self.pos.x * CELL_SIZE), int(self.pos.y * CELL_SIZE), CELL_SIZE, CELL_SIZE)
 
 
-# --- GAME LOGIC ---
+# --- LÓGICA DO JOGO ---
 
 class Main:
-    """Manages the main game logic, including levels, score, collisions, and game state."""
+    """Gerencia a lógica principal do jogo, incluindo níveis, pontuação, colisões e estado do jogo."""
     def __init__(self):
         self.snake = Snake()
-        self.obstacles = [Obstacle() for _ in range(5)]  # Create 5 obstacle objects
-        self.obstacle_positions = [obstacle.pos for obstacle in self.obstacles]  # Store obstacle positions as Vector2
+        self.obstacles = [Obstacle() for _ in range(5)]  # Cria 5 objetos de obstáculo
+        self.obstacle_positions = [obstacle.pos for obstacle in self.obstacles]  # Armazena as posições dos obstáculos como Vector2
         self.fruit = Fruit(self.snake.body, self.obstacle_positions)
         self.lives = 3
         self.score = 0
-        self.has_moved = False  # Flag to prevent movement before a key is pressed
+        self.has_moved = False  # Flag para impedir o movimento antes que uma tecla seja pressionada
         self.apples_collected = 0
-        self.apples_to_win = 5 # Initial value, might be changed in define_level_goals
+        self.apples_to_win = 5 # Valor inicial, pode ser alterado em define_level_goals
         self.xp = 0
         self.level = 1
-        self.level_up = False # flag to identify level up
+        self.level_up = False # Flag para identificar o aumento de nível
         self.obstacle_chance = 0.2
         self.level_complete = False
-        self.speed = 150 # milliseconds between screen updates
+        self.speed = 150 # Milissegundos entre as atualizações da tela
         self.background_colors = [BACKGROUND_COLOR, NIGHT_GREEN, BLOOD_RED, DARK_GRAY]
-        self.current_background_color = self.background_colors[0] # set initial background color
+        self.current_background_color = self.background_colors[0] # Define a cor de fundo inicial
         self.show_objective = True
-        self.objective_timer = 2000 # milliseconds to show objective
+        self.objective_timer = 2000 # Milissegundos para mostrar o objetivo
         self.objective_start_time = 0
         self.define_level_goals()
         self.increase_speed()
 
+        # Carrega a imagem de vida
+        self.life_image = pygame.image.load('img/coracao.png').convert_alpha()  # Substitua 'img/coracao.png' pelo caminho da sua imagem
+        self.life_image = pygame.transform.scale(self.life_image, (25, 25))  # Ajusta o tamanho conforme necessário
+
+        # Carrega a imagem de Game Over
+        self.game_over_image = pygame.image.load('img/game-over_Prancheta 1.jpg').convert_alpha() # substitua pelo nome correto
+        self.game_over_image = pygame.transform.scale(self.game_over_image, (600, 600))  # Ajuste conforme necessário
+
     def define_level_goals(self):
-        """Defines how many apples the snake must eat to complete the current level."""
+        """Define quantas maçãs a cobra deve comer para completar o nível atual."""
         if self.level == 1:
             self.apples_to_win = 10
         elif self.level == 2:
@@ -237,19 +245,19 @@ class Main:
             self.apples_to_win = 25
 
     def increase_speed(self):
-        """Increases the snake's speed, making the game harder."""
+        """Aumenta a velocidade da cobra, tornando o jogo mais difícil."""
         self.speed = max(50, self.speed - 15)
-        print(f"Snake speed increased to: {self.speed}")
+        print(f"Velocidade da cobra aumentada para: {self.speed}")
 
     def next_level(self):
-        """Advances the game to the next level."""
+        """Avança o jogo para o próximo nível."""
         self.level += 1
         if self.level > 4:
-            self.level = 1  # Wrap around to level 1 if we exceed the number of levels
+            self.level = 1  # Volta ao nível 1 se excedermos o número de níveis
 
         self.current_background_color = self.background_colors[self.level - 1]
         self.apples_collected = 0
-        # Reset obstacle positions on level transition.
+        # Redefine as posições dos obstáculos na transição de nível.
         for obstacle in self.obstacles:
             occupied_positions = self.snake.body + [o.pos for o in self.obstacles if o != obstacle]
             obstacle.randomize(occupied_positions)
@@ -264,21 +272,21 @@ class Main:
         self.level_complete_timer = None
         pygame.time.set_timer(SCREEN_UPDATE, self.speed)
 
-        # Redirecionar para a tela inicial
+        # Redireciona para a tela inicial
         selected_level = main_menu(screen)
         self.level = selected_level
         self.define_level_goals()
         self.increase_speed()
 
     def update(self):
-        """Updates the game state, moving the snake, checking for collisions, and handling game over conditions."""
+        """Atualiza o estado do jogo, movendo a cobra, verificando colisões e lidando com as condições de Game Over."""
         if not self.game_over() and self.has_moved and not self.show_objective and not self.level_complete:
             self.snake.move_snake()
             self.check_collision()
             self.check_fail()
 
     def draw_elements(self):
-        """Draws all game elements on the screen."""
+        """Desenha todos os elementos do jogo na tela."""
         self.draw_grass()
         self.fruit.draw_fruit()
         self.snake.draw_snake()
@@ -288,7 +296,7 @@ class Main:
             obstacle.draw_obstacle()
 
     def check_collision(self):
-        """Checks if the snake has collided with the fruit."""
+        """Verifica se a cobra colidiu com a fruta."""
         if self.fruit.pos == self.snake.body[0]:
             self.snake.add_block()
             self.snake.play_crunch_sound()
@@ -299,40 +307,40 @@ class Main:
                 self.level_complete = True
                 self.level_complete_timer = pygame.time.get_ticks()
             else:
-                # Ensure new fruit doesn't overlap with obstacles
+                # Garante que a nova fruta não se sobreponha aos obstáculos
                 occupied_positions = self.snake.body + [o.pos for o in self.obstacles]
-                self.fruit = Fruit(self.snake.body, [o.pos for o in self.obstacles])  # Pass the Vector2 positions now
+                self.fruit = Fruit(self.snake.body, [o.pos for o in self.obstacles])  # Passa as posições do Vector2 agora
 
         for block in self.snake.body[1:]:
             if block == self.fruit.pos:
-                # Ensure new fruit doesn't overlap with obstacles
+                # Garante que a nova fruta não se sobreponha aos obstáculos
                 occupied_positions = self.snake.body + [o.pos for o in self.obstacles]
-                self.fruit = Fruit(self.snake.body,  [o.pos for o in self.obstacles]) # Pass Vector2 positions
+                self.fruit = Fruit(self.snake.body,  [o.pos for o in self.obstacles]) # Passa as posições do Vector2
 
     def check_fail(self):
-        """Checks if the snake has hit a wall, itself, or an obstacle."""
+        """Verifica se a cobra bateu em uma parede, em si mesma ou em um obstáculo."""
         if not 0 <= self.snake.body[0].x < CELL_NUMBER or not 0 <= self.snake.body[0].y < CELL_NUMBER:
             self.lose_life()
         for block in self.snake.body[1:]:
             if block == self.snake.body[0]:
                 self.lose_life()
-        # Check obstacle collision: compare Vector2 positions directly.
+        # Verifica a colisão com o obstáculo: compara as posições do Vector2 diretamente.
         for obstacle in self.obstacles:
             if self.snake.body[0] == obstacle.pos:
                 self.lose_life()
 
     def lose_life(self):
-        """Handles the loss of a life, resetting the snake if lives remain."""
+        """Lida com a perda de uma vida, redefinindo a cobra se as vidas restantes."""
         self.lives -= 1
         if not self.game_over():
             self.reset_snake()
 
     def game_over(self):
-        """Checks if the game is over (no lives remaining)."""
+        """Verifica se o jogo acabou (sem vidas restantes)."""
         return self.lives <= 0
 
     def draw_grass(self):
-        """Draws the grass background."""
+        """Desenha o fundo de grama."""
         for row in range(CELL_NUMBER):
             for col in range(CELL_NUMBER):
                 grass_rect = pygame.Rect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE)
@@ -344,7 +352,7 @@ class Main:
         pygame.draw.rect(screen, BLOOD_RED, border_rect, 3)
 
     def draw_score(self):
-        """Draws the score on the screen."""
+        """Desenha a pontuação na tela."""
         score_text = str(self.score)
         score_surface = game_font.render(score_text, True, TEXT_COLOR)
         score_x = int(CELL_SIZE * CELL_NUMBER - 60)
@@ -359,30 +367,34 @@ class Main:
         pygame.draw.rect(screen, NIGHT_GREEN, bg_rect, 2)
 
     def draw_lives(self):
-        """Draws the number of lives remaining on the screen."""
-        lives_text = str(self.lives)
-        lives_surface = game_font.render(f"Lives: {lives_text} XP: {self.xp}", True, TEXT_COLOR)
-        lives_rect = lives_surface.get_rect(topleft=(10, 10))
-        screen.blit(lives_surface, lives_rect)
+        """Desenha o número de vidas restantes na tela."""
+        start_x = 10  # Posição X inicial para a primeira imagem de vida
+        for i in range(self.lives):
+            life_rect = self.life_image.get_rect(topleft=(start_x + i * 30, 10))  # Ajusta espaçamento
+            screen.blit(self.life_image, life_rect)
+        # Desenha o texto de XP ao lado das vidas
+        xp_text = game_font.render(f"XP: {self.xp}", True, TEXT_COLOR)
+        xp_rect = xp_text.get_rect(topleft=(start_x + self.lives * 30 + 10, 10))  # Ajusta a posição do texto XP
+        screen.blit(xp_text, xp_rect)
 
     def draw_objective(self):
-        """Draws the current level's objective on the screen."""
+        """Desenha o objetivo do nível atual na tela."""
         font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 40)
-        objective_text = f"Level {self.level}: Eat {self.apples_collected}/{self.apples_to_win} apples!"
+        objective_text = f"Nível {self.level}: Coma {self.apples_collected}/{self.apples_to_win} maçãs!"
         objective_surface = font.render(objective_text, True, TEXT_COLOR)
         objective_rect = objective_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
         screen.blit(objective_surface, objective_rect)
 
     def draw_level_complete(self):
-        """Draws the level complete message on the screen."""
+        """Desenha a mensagem de nível completo na tela."""
         font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 60)
-        level_complete_text = f"Level {self.level} Complete!"
+        level_complete_text = f"Nível {self.level} Completo!"
         level_complete_surface = font.render(level_complete_text, True, WHITE)
         level_complete_rect = level_complete_surface.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
         screen.blit(level_complete_surface, level_complete_rect)
 
     def reset_game(self):
-        """Resets the entire game to its initial state."""
+        """Redefine todo o jogo para seu estado inicial."""
         self.reset_snake()
         self.obstacles = [Obstacle() for _ in range(5)]
         self.obstacle_positions = [obstacle.pos for obstacle in self.obstacles]
@@ -400,33 +412,61 @@ class Main:
         pygame.time.set_timer(SCREEN_UPDATE, self.speed)
         self.show_objective = True
         self.objective_start_time = pygame.time.get_ticks()
-        self.current_background_color = self.background_colors[0]  # Reset background color
+        self.current_background_color = self.background_colors[0]  # Redefine a cor de fundo
         self.level_complete = False
         self.level_complete_timer = None
 
     def reset_snake(self):
-        """Resets the snake to its initial position and direction."""
+        """Redefine a cobra para sua posição e direção inicial."""
         self.snake.reset()
         self.has_moved = False
         self.snake.direction = Vector2(0, 0)
 
+    def draw_game_over(self):
+        """Desenha a imagem de Game Over e o botão para retornar ao menu principal."""
+        screen.blit(self.game_over_image, (0, 0))  # Desenha a imagem de Game Over
+
+        # Propriedades do botão
+        button_width = 200
+        button_height = 50
+        button_color = BLOOD_RED
+        button_text_color = WHITE
+        button_x = screen.get_width() // 2 - button_width // 2
+        button_y = screen.get_height() // 2 + 100 # Posição do botão
+
+        # Cria o retângulo do botão
+        button_rect = pygame.Rect(button_x, button_y, button_width, button_height)
+
+        # Desenha o botão
+        pygame.draw.rect(screen, button_color, button_rect)
+
+        # Renderiza o texto do botão
+        font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
+        text_surface = font.render("Voltar ao Menu", True, button_text_color)
+        text_rect = text_surface.get_rect(center=button_rect.center)
+
+        # Desenha o texto no botão
+        screen.blit(text_surface, text_rect)
+
+        return button_rect # Retorna o retângulo do botão para verificar cliques
+
 # --- MENU ---
 
 def main_menu(screen):
-    """Displays the main menu and allows the player to select a level."""
+    """Exibe o menu principal e permite que o jogador selecione um nível."""
     pygame.init()
     background_image = pygame.image.load('img/Capa_Prancheta 1.png').convert()
     background_image = pygame.transform.scale(background_image, screen.get_size())
     start_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 30)
-    phrase = "Welcome to Snake Game!"
+    phrase = "Bem-vindo ao Jogo da Cobra!"
     typed_text = ""
 
     def draw_screen():
-        """Draws the menu screen with level selection buttons."""
+        """Desenha a tela do menu com botões de seleção de nível."""
         screen.blit(background_image, (0, 0))
         level_buttons = []
         for i in range(1, 5):
-            button_surface = start_font.render(f"Level {i}", True, TEXT_COLOR)
+            button_surface = start_font.render(f"Nível {i}", True, TEXT_COLOR)
             button_rect = button_surface.get_rect(
                 center=(screen.get_width() // 2 + (i - 2.5) * 150, screen.get_height() // 2 + 150))  # Mais para baixo
             pygame.draw.rect(screen, BLOOD_RED, button_rect.inflate(30, 10), border_radius=15)
@@ -436,13 +476,13 @@ def main_menu(screen):
         pygame.display.update()
         return level_buttons
 
-    # Initial typing animation
+    # Animação de digitação inicial
     for i in range(len(phrase)):
         typed_text += phrase[i]
         draw_screen()
         time.sleep(0.05)
 
-    # Main menu loop
+    # Loop do menu principal
     running = True
     while running:
         level_buttons = draw_screen()
@@ -456,35 +496,35 @@ def main_menu(screen):
                     if button_rect.collidepoint(mouse_pos):
                         return level
             elif event.type == pygame.KEYDOWN:
-                return 1  # Default to level 1 if any key is pressed
+                return 1  # Volta ao nível 1 por padrão se qualquer tecla for pressionada
         clock.tick(60)
-    return 1  # Default to level 1
+    return 1  # Volta ao nível 1 por padrão
 
-# --- INITIALIZATION ---
+# --- INICIALIZAÇÃO ---
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 screen = pygame.display.set_mode((600, 600))
 clock = pygame.time.Clock()
-apple = pygame.image.load('img/apple.png').convert_alpha()  # Load apple image here
+apple = pygame.image.load('img/apple.png').convert_alpha()  # Carrega a imagem da maçã aqui
 game_font = pygame.font.Font('Font/PoetsenOne-Regular.ttf', 25)
 
-SCREEN_UPDATE = pygame.USEREVENT  # Custom event for updating the screen
+SCREEN_UPDATE = pygame.USEREVENT  # Evento personalizado para atualizar a tela
 
-# Load obstacle image
+# Carrega a imagem do obstáculo
 obstaculo_image_path = os.path.join(os.path.dirname(__file__), 'img', 'obstaculo.png')
 obstaculo_image = pygame.image.load(obstaculo_image_path)
 obstaculo_image = pygame.transform.scale(obstaculo_image, (CELL_SIZE, CELL_SIZE))  # Redimensiona a imagem para o tamanho do obstáculo
 
-# Show main menu and get selected level
+# Mostra o menu principal e obtém o nível selecionado
 selected_level = main_menu(screen)
 
-# Create the main game instance
+# Cria a instância principal do jogo
 main_game = Main()
 main_game.level = selected_level
 main_game.define_level_goals()
 main_game.increase_speed()
 
-# --- GAME LOOP ---
+# --- LOOP DO JOGO ---
 game_running = True
 pygame.time.set_timer(SCREEN_UPDATE, main_game.speed)
 
@@ -495,7 +535,7 @@ while True:
             if current_time - main_game.objective_start_time >= main_game.objective_timer:
                 main_game.show_objective = False
 
-        screen.fill(main_game.current_background_color)  # Setting the background color
+        screen.fill(main_game.current_background_color)  # Define a cor de fundo
         main_game.draw_elements()
 
         if main_game.level_complete:
@@ -504,14 +544,27 @@ while True:
                 main_game.next_level()
 
     else:
-        screen.fill(BACKGROUND_COLOR)  # Fill with default background color when game is over
+        # Lógica da tela de Game Over
+        screen.fill(BACKGROUND_COLOR)  # Preenche com a cor de fundo padrão quando o jogo acaba
+        button_rect = main_game.draw_game_over() # Desenha a imagem de Game Over e o botão na tela
 
-    if not game_running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                # Verifica se o clique foi no botão
+                if button_rect.collidepoint(mouse_pos):
+                    selected_level = main_menu(screen)
+                    main_game = Main()
+                    main_game.level = selected_level
+                    main_game.define_level_goals()
+                    main_game.increase_speed()
+                    game_running = True
+                    pygame.time.set_timer(SCREEN_UPDATE, main_game.speed)
+                    break # Inicia um novo jogo
+            elif event.type == pygame.KEYDOWN: # Se o jogador pressionar qualquer tecla
                 selected_level = main_menu(screen)
                 main_game = Main()
                 main_game.level = selected_level
@@ -519,8 +572,8 @@ while True:
                 main_game.increase_speed()
                 game_running = True
                 pygame.time.set_timer(SCREEN_UPDATE, main_game.speed)
-                break
-    else:
+                break # Inicia um novo jogo
+    if game_running: # Eventos do jogo
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -545,8 +598,7 @@ while True:
                             main_game.snake.direction = Vector2(-1, 0)
 
         if main_game.game_over():
-            main_game.reset_game()
-            game_running = False
+            game_running = False # Define o game running como falso para pará-lo até que o jogador clique no botão
 
     pygame.display.update()
     clock.tick(60)
